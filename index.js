@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
+//import { ResourceProvider } from '@signalk/server-api'
+// const { ResourceProvider } = require('@signalk/server-api');
+
 const request = require('request');
 const poiKey = 'pointsOfInterest.activeCaptain';
-userAgent = 'Signal K ActiveCaptain Plugin';
+const userAgent = 'Signal K ActiveCaptain Plugin';
 const checkEveryNMinutes = 15;
 
 module.exports = function(app) {
-  var plugin = {};
-  var pois = {};
 
-  plugin.id = "signalk-activecaptain";
-  plugin.name = "ActiveCaptain";
-  plugin.description = "Publishes ActiveCaptain Points of Interest";
+  const plugin = {
+    id: "signalk-activecaptain",
+    name: "ActiveCaptain",
+    description: "Publishes ActiveCaptain Points of Interest" 
+  };
+  var pois = {};
 
   plugin.start = function(options) {
     // Position data is not immediately available, delay it
@@ -35,6 +39,35 @@ module.exports = function(app) {
     setInterval( function() {
       checkAndPublishPois();
     }, checkEveryNMinutes * 60 * 1000);
+
+    // Register as a resource provider
+    try {
+      app.registerResourceProvider({
+        type: 'waypoints',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`List`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            app.debug(`Get`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
   }
 
   plugin.stop =  function() {
@@ -44,6 +77,11 @@ module.exports = function(app) {
     type: 'object',
     required: [],
     properties: {
+      resources: {
+        type: 'boolean',
+        title: 'Also publish activecaptain points of interest as note resources using the resource API',
+        default: true
+      }
     }
   }
 

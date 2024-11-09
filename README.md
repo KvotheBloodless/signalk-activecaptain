@@ -1,6 +1,8 @@
-# NOAA Observations
+# SignalK Active Captain plugin
 
-Publishes points of interest (POI) from ActiveCaptain under `pointsOfInterest.activeCaptain.{id}`. Here is an example:
+Publishes points of interest (POI) from ActiveCaptain under `pointsOfInterest.activeCaptain.{id}` as well as a note resource. 
+
+Here is an example:
 
 ```
 {

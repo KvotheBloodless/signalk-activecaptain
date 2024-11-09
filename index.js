@@ -28,6 +28,7 @@ module.exports = function(app) {
     name: "ActiveCaptain",
     description: "Publishes ActiveCaptain Points of Interest" 
   };
+
   var pois = {};
 
   plugin.start = function(options) {
@@ -41,21 +42,47 @@ module.exports = function(app) {
     }, checkEveryNMinutes * 60 * 1000);
 
     // Register as a resource provider
+    if(options.noteResources) {
+      registerAsNoteResourcesProvider();
+    }
+    if(options.garminResources) {
+      registerAsCustomGarminResourcesProvider();
+    }
+  }
+
+  plugin.stop =  function() {
+  };
+
+  plugin.schema = {
+    type: 'object',
+    required: [],
+    properties: {
+      noteResources: {
+        type: 'boolean',
+        title: 'Publish ActiveCaptain points of interest as note resources using the resource API',
+        default: true
+      },
+      garminResources: {
+        type: 'boolean',
+        title: 'Publish ActiveCaptain points of interest as custom Garmin resources using the resource API (ac_Unknown, ac_Anchorage, ac_Hazard, ac_Marina, ac_LocalKnowledge, ac_Navigational, ac_BoatRamp, ac_Business, ac_Inlet, ac_Bridge, ac_Lock, ac_Dam, ac_Ferry, ac_Airport)',
+        default: false
+      } 
+    }
+  }
+
+  function registerAsNoteResourcesProvider() {
     try {
       app.registerResourceProvider({
-        type: 'waypoints',
+        type: 'notes',
         methods: {
           listResources: (params) => { 
-            app.debug(`List`)
+            app.debug(`Incoming request to list note resources`)
             return new Promise((resolve, reject) => {
               reject(new Error('Still testing'))
             })
           },
           getResource: (id, property) => { 
-            app.debug(`Get`)
-            return new Promise((resolve, reject) => {
-              reject(new Error('Still testing'))
-            })
+            throw(new Error('Not implemented!'))
           },
           setResource: (id, value) => { 
             throw(new Error('Not implemented!'))
@@ -70,18 +97,398 @@ module.exports = function(app) {
     }
   }
 
-  plugin.stop =  function() {
-  };
+  function registerAsCustomGarminResourcesProvider() {
+    registerAsCustomerGarminUnknownResourcesProvider();
+    registerAsCustomerGarminAnchorageResourcesProvider();
+    registerAsCustomerGarminHazardResourcesProvider();
+    registerAsCustomerGarminMarinaResourcesProvider();
+    registerAsCustomerGarminLocalKnowledgeResourcesProvider();
+    registerAsCustomerGarminNavigationalResourcesProvider();
+    registerAsCustomerGarminBoatRampResourcesProvider();
+    registerAsCustomerGarminBusinessResourcesProvider();
+    registerAsCustomerGarminInletResourcesProvider();
+    registerAsCustomerGarminBridgeResourcesProvider();
+    registerAsCustomerGarminLockResourcesProvider();
+    registerAsCustomerGarminDamResourcesProvider();
+    registerAsCustomerGarminFerryResourcesProvider();
+    registerAsCustomerGarminAirportResourcesProvider();
+  }
 
-  plugin.schema = {
-    type: 'object',
-    required: [],
-    properties: {
-      resources: {
-        type: 'boolean',
-        title: 'Also publish activecaptain points of interest as note resources using the resource API',
-        default: true
-      }
+  function registerAsCustomerGarminUnknownResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Unknown',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminAnchorageResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Anchorage',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminHazardResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Hazard',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminMarinaResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Marina',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminLocalKnowledgeResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_LocalKnowledge',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminNavigationalResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Navigational',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminBoatRampResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'sc_BoatRamp',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminBusinessResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Business',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminInletResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Inlet',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminBridgeResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Bridge',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminLockResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Lock',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminDamResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Dam',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminFerryResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Ferry',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomerGarminAirportResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'ac_Airport',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources`)
+            return new Promise((resolve, reject) => {
+              reject(new Error('Still testing'))
+            })
+          },
+          getResource: (id, property) => { 
+            throw(new Error('Not implemented!'))
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
     }
   }
 

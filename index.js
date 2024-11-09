@@ -15,16 +15,18 @@
 
 const request = require('request');
 const poiKey = 'pointsOfInterest.activeCaptain';
-userAgent = 'Signal K ActiveCaptain Plugin';
+const userAgent = 'Signal K ActiveCaptain Plugin';
 const checkEveryNMinutes = 15;
 
 module.exports = function(app) {
-  var plugin = {};
-  var pois = {};
 
-  plugin.id = "signalk-activecaptain";
-  plugin.name = "ActiveCaptain";
-  plugin.description = "Publishes ActiveCaptain Points of Interest";
+  const plugin = {
+    id: "signalk-activecaptain",
+    name: "ActiveCaptain",
+    description: "Publishes ActiveCaptain Points of Interest" 
+  };
+
+  var pois = {};
 
   plugin.start = function(options) {
     // Position data is not immediately available, delay it
@@ -35,6 +37,14 @@ module.exports = function(app) {
     setInterval( function() {
       checkAndPublishPois();
     }, checkEveryNMinutes * 60 * 1000);
+
+    // Register as a resource provider
+    if(options.noteResources) {
+      registerAsNoteResourcesProvider();
+    }
+    if(options.customResources) {
+      registerAsCustomResourcesProviders();
+    }
   }
 
   plugin.stop =  function() {
@@ -44,6 +54,96 @@ module.exports = function(app) {
     type: 'object',
     required: [],
     properties: {
+      noteResources: {
+        type: 'boolean',
+        title: 'Publish ActiveCaptain points of interest as note resources using the resource API',
+        default: true
+      },
+      customResources: {
+        type: 'boolean',
+        title: 'Publish ActiveCaptain points of interest as custom resources using the resource API (ac_Unknown, ac_Anchorage, ac_Hazard, ac_Marina, ac_LocalKnowledge, ac_Navigational, ac_BoatRamp, ac_Business, ac_Inlet, ac_Bridge, ac_Lock, ac_Dam, ac_Ferry, ac_Airport)',
+        default: false
+      } 
+    }
+  }
+
+  var noteResources = {};
+
+  function registerAsNoteResourcesProvider() {
+    try {
+      app.registerResourceProvider({
+        type: 'notes',
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list note resources - ${JSON.stringify(noteResources)}`)
+            return new Promise((resolve, reject) => {
+              resolve(noteResources)
+            })
+          },
+          getResource: (id, property) => { 
+            app.debug(`Incoming request to get note resource`)
+            return new Promise((resolve, reject) => {
+              resolve(noteResources[id])
+            })
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
+    }
+  }
+
+  function registerAsCustomResourcesProviders() {
+    registerAsCustomResourcesProvider('ac_Unknown');
+    registerAsCustomResourcesProvider('ac_Anchorage');
+    registerAsCustomResourcesProvider('ac_Hazard');
+    registerAsCustomResourcesProvider('ac_Marina');
+    registerAsCustomResourcesProvider('ac_LocalKnowledge');
+    registerAsCustomResourcesProvider('ac_Navigational');
+    registerAsCustomResourcesProvider('ac_BoatRamp');
+    registerAsCustomResourcesProvider('ac_Business');
+    registerAsCustomResourcesProvider('ac_Inlet');
+    registerAsCustomResourcesProvider('ac_Lock');
+    registerAsCustomResourcesProvider('ac_Dam');
+    registerAsCustomResourcesProvider('ac_Ferry');
+    registerAsCustomResourcesProvider('ac_Airport');
+  }
+
+  var customResources = {};
+
+  function registerAsCustomResourcesProvider(type) {
+    try {
+      app.registerResourceProvider({
+        type: type,
+        methods: {
+          listResources: (params) => { 
+            app.debug(`Incoming request to list ActiveCaptain ${type} resources`)
+            return new Promise((resolve, reject) => {
+              resolve(customResources[type])
+            })
+          },
+          getResource: (id, property) => { 
+            app.debug(`Incoming request to get ActiveCaptain ${type} resource`)
+            return new Promise((resolve, reject) => {
+              resolve(customResources[type][id])
+            })
+          },
+          setResource: (id, value) => { 
+            throw(new Error('Not implemented!'))
+          },
+          deleteResource: (id) => { 
+            throw(new Error('Not implemented!'))
+          }
+        }
+      });
+    } catch (error) {
+      app.debug(`Cannot register as a resource provider ${error}`);
     }
   }
 
@@ -126,16 +226,27 @@ module.exports = function(app) {
           return;
         }
 
-        let notes;
-        if ((data.pointOfInterest.notes) && (data.pointOfInterest.notes[0])) {
-          notes = data.pointOfInterest.notes[0].value;
-          // We don't want to trash SignalK with a ton of text
-          const lengthLimit = 280;
-          if (notes.length > lengthLimit) {
-            notes = notes.slice(0, lengthLimit)+'...';
+        let shortNotes = "";
+        let longNotes = "";
+        let i = 0;
+        if (data.pointOfInterest.notes) {
+          for(const note of data.pointOfInterest.notes) {
+            i++;
+
+            if(i == 1) {	
+              shortNotes = note.value;
+              // We don't want to trash SignalK with a ton of text
+              const lengthLimit = 280;
+              if (shortNotes.length > lengthLimit) {
+                shortNotes = shortNotes.slice(0, lengthLimit)+'...';
+              }
+            }
+
+            longNotes += `Note ${i} - ` + note.value + `\n`;
           }
         } else {
-          notes = '';
+          shortNotes = '';
+          longNotes = '';
         }
 
         pois[poi.id] = {
@@ -143,10 +254,24 @@ module.exports = function(app) {
           name: data.pointOfInterest.name,
           position: data.pointOfInterest.mapLocation,
           type: data.pointOfInterest.poiType,
-          notes: notes,
+          notes: shortNotes,
           url: `https://activecaptain.garmin.com/en-US/pois/${poi.id}`
         }
         emitSignalKMessage(pois[poi.id]);
+      
+        noteResources[poi.id] = {
+          name: data.pointOfInterest.name,
+          description: longNotes,
+          position: data.pointOfInterest.mapLocation,
+          group: data.pointOfInterest.poiType,
+          url: `https://activecaptain.garmin.com/en-US/pois/${poi.id}`
+        }
+
+	if(!(`ac_${data.pointOfInterest.poiType}` in customResources)) {
+          customResources[`ac_${data.pointOfInterest.poiType}`] = {};
+        }
+        customResources[`ac_${data.pointOfInterest.poiType}`][poi.id] = data;
+
         app.debug(`Published details for POI ${poi.id}`);
       } else {
         app.debug(`Error retrieving ${url}: ${JSON.stringify(response)}`);

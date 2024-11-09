@@ -13,9 +13,6 @@
  * limitations under the License.
  */
 
-//import { ResourceProvider } from '@signalk/server-api'
-// const { ResourceProvider } = require('@signalk/server-api');
-
 const request = require('request');
 const poiKey = 'pointsOfInterest.activeCaptain';
 const userAgent = 'Signal K ActiveCaptain Plugin';
@@ -45,7 +42,7 @@ module.exports = function(app) {
     if(options.noteResources) {
       registerAsNoteResourcesProvider();
     }
-    if(options.garminResources) {
+    if(options.customResources) {
       registerAsCustomResourcesProviders();
     }
   }
@@ -62,9 +59,9 @@ module.exports = function(app) {
         title: 'Publish ActiveCaptain points of interest as note resources using the resource API',
         default: true
       },
-      garminResources: {
+      customResources: {
         type: 'boolean',
-        title: 'Publish ActiveCaptain points of interest as custom Garmin resources using the resource API (ac_Unknown, ac_Anchorage, ac_Hazard, ac_Marina, ac_LocalKnowledge, ac_Navigational, ac_BoatRamp, ac_Business, ac_Inlet, ac_Bridge, ac_Lock, ac_Dam, ac_Ferry, ac_Airport)',
+        title: 'Publish ActiveCaptain points of interest as custom resources using the resource API (ac_Unknown, ac_Anchorage, ac_Hazard, ac_Marina, ac_LocalKnowledge, ac_Navigational, ac_BoatRamp, ac_Business, ac_Inlet, ac_Bridge, ac_Lock, ac_Dam, ac_Ferry, ac_Airport)',
         default: false
       } 
     }
@@ -251,8 +248,6 @@ module.exports = function(app) {
           shortNotes = '';
           longNotes = '';
         }
-
-        // app.debug(`Fetched POI data ${poi.id}: ${JSON.stringify(data)}`);
 
         pois[poi.id] = {
           id: poi.id,

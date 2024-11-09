@@ -70,19 +70,24 @@ module.exports = function(app) {
     }
   }
 
+  var noteResources = {};
+
   function registerAsNoteResourcesProvider() {
     try {
       app.registerResourceProvider({
         type: 'notes',
         methods: {
           listResources: (params) => { 
-            app.debug(`Incoming request to list note resources`)
+            app.debug(`Incoming request to list note resources - ${JSON.stringify(noteResources)}`)
             return new Promise((resolve, reject) => {
-              reject(new Error('Still testing'))
+              resolve(noteResources)
             })
           },
           getResource: (id, property) => { 
-            throw(new Error('Not implemented!'))
+            app.debug(`Incoming request to get note resource`)
+            return new Promise((resolve, reject) => {
+              resolve(noteResources[id])
+            })
           },
           setResource: (id, value) => { 
             throw(new Error('Not implemented!'))
@@ -571,27 +576,49 @@ module.exports = function(app) {
           return;
         }
 
-        let notes;
-        if ((data.pointOfInterest.notes) && (data.pointOfInterest.notes[0])) {
-          notes = data.pointOfInterest.notes[0].value;
-          // We don't want to trash SignalK with a ton of text
-          const lengthLimit = 280;
-          if (notes.length > lengthLimit) {
-            notes = notes.slice(0, lengthLimit)+'...';
+        let shortNotes = "";
+        let longNotes = "";
+        let i = 0;
+        if (data.pointOfInterest.notes) {
+          for(const note of data.pointOfInterest.notes) {
+            i++;
+
+            if(i == 1) {	
+              shortNotes = note.value;
+              // We don't want to trash SignalK with a ton of text
+              const lengthLimit = 280;
+              if (shortNotes.length > lengthLimit) {
+                shortNotes = shortNotes.slice(0, lengthLimit)+'...';
+              }
+            }
+
+            longNotes += `Note ${i} - ` + note.value + `\n`;
           }
         } else {
-          notes = '';
+          shortNotes = '';
+          longNotes = '';
         }
+
+        // app.debug(`Fetched POI data ${poi.id}: ${JSON.stringify(data)}`);
 
         pois[poi.id] = {
           id: poi.id,
           name: data.pointOfInterest.name,
           position: data.pointOfInterest.mapLocation,
           type: data.pointOfInterest.poiType,
-          notes: notes,
+          notes: shortNotes,
           url: `https://activecaptain.garmin.com/en-US/pois/${poi.id}`
         }
         emitSignalKMessage(pois[poi.id]);
+      
+        noteResources[poi.id] = {
+          name: data.pointOfInterest.name,
+          description: longNotes,
+          position: data.pointOfInterest.mapLocation,
+          group: data.pointOfInterest.poiType,
+          url: `https://activecaptain.garmin.com/en-US/pois/${poi.id}`
+        }
+
         app.debug(`Published details for POI ${poi.id}`);
       } else {
         app.debug(`Error retrieving ${url}: ${JSON.stringify(response)}`);
